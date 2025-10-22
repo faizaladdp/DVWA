@@ -41,7 +41,7 @@ jobs:
           sonar-report-generator --input sonar-report.json --output sonar-report.html
 
       - name: Upload SAST HTML Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sast-report
           path: sonar-report.html
