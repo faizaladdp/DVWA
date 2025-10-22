@@ -1,35 +1,27 @@
-name: DVWA SonarCloud Scan
+name: SAST Scan
 
 on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
-  sonarcloud-dvwa:
+  sonar:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
-        extensions: mbstring, xml, curl
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
 
-    - name: Run SonarCloud Scan
-      uses: SonarSource/sonarqube-scan-action@v5.0.0
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      with:
-        args: >
-          -Dsonar.projectKey=dvwa22
-          -Dsonar.organization=faizaladdp
-          -Dsonar.sources=.
-          -Dsonar.exclusions=config/**,docs/**,tests/**
-
-    - name: Clean Sonar scanner cache
-      run: rm -rf $HOME/.sonar/cache
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectKey: dvwa22
+          organization: faizaladdp
+          sources: .
+          exclusions: 'config/**,docs/**,tests/**'
