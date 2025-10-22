@@ -1,4 +1,4 @@
-name: SonarCloud Scan
+name: DVWA Security Scan
 
 on:
   push:
@@ -6,6 +6,9 @@ on:
       - master
 
 jobs:
+  # -----------------------
+  # SonarCloud SAST Scan
+  # -----------------------
   sonar:
     runs-on: ubuntu-latest
     steps:
@@ -17,31 +20,51 @@ jobs:
         with:
           php-version: 8.2
 
-      - name: Install SonarScanner CLI
-        run: |
-          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.10.0.19059-linux.zip
-          unzip sonar-scanner-cli-4.10.0.19059-linux.zip -d $HOME/sonar-scanner
-          echo "$HOME/sonar-scanner/sonar-scanner-4.10.0.19059-linux/bin" >> $GITHUB_PATH
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=dvwa22
+            -Dsonar.organization=dvwa22
+            -Dsonar.sources=.
+            -Dsonar.exclusions=config/**,docs/**,tests/**
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.branch.name=master
 
-      - name: Run SonarCloud Scan with JSON Report
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=dvwa22 \
-            -Dsonar.organization=dvwa22 \
-            -Dsonar.sources=. \
-            -Dsonar.exclusions=config/**,docs/**,tests/** \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.branch.name=master \
-            -Dsonar.scanner.metadataFile=sonar-report.json
+  # -----------------------
+  # PHP SCA / Dependency Scan
+  # -----------------------
+  sca:
+    runs-on: ubuntu-latest
+    needs: sonar
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Convert JSON to HTML Report
-        run: |
-          npm install -g sonar-report-generator
-          sonar-report-generator --input sonar-report.json --output sonar-report.html
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Upload SAST HTML Report
+      - name: Install OWASP Dependency-Check
+        run: |
+          curl -LO https://github.com/jeremylong/DependencyCheck/releases/download/v8.6.0/dependency-check-8.6.0-release.zip
+          unzip dependency-check-8.6.0-release.zip -d dependency-check
+
+      - name: Run Dependency-Check SCA Scan
+        run: |
+          ./dependency-check/bin/dependency-check.sh \
+            --project "DVWA SCA Scan" \
+            --scan . \
+            --format "ALL" \
+            --out "sca-report"
+
+      - name: Upload SCA Reports
         uses: actions/upload-artifact@v4
         with:
-          name: sast-report
-          path: sonar-report.html
+          name: sca-report
+          path: sca-report/
