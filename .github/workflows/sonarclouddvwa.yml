@@ -26,7 +26,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
         args: >
-          -Dsonar.projectKey=dvwa
+          -Dsonar.projectKey=dvwa22
           -Dsonar.organization=faizaladdp
           -Dsonar.sources=.
           -Dsonar.exclusions=config/**,docs/**,tests/**
