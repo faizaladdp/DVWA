@@ -37,28 +37,25 @@ jobs:
   # -----------------------
   # PHP SCA / Dependency Scan
   # -----------------------
-  sca:
-    runs-on: ubuntu-latest
-    needs: sonar
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Run OWASP Dependency-Check
-        run: |
-          docker pull owasp/dependency-check:latest
-          docker run --rm \
-            -v ${{ github.workspace }}:/src \
-            -v ${{ github.workspace }}/dependency-check-data:/usr/share/dependency-check/data \
-            -v ${{ github.workspace }}/dependency-check-reports:/report \
-            owasp/dependency-check:latest \
-            --scan /src \
-            --format "ALL" \
-            --project "DVWA SCA Scan" \
-            --out /report
-
-      - name: Upload SCA Reports
-        uses: actions/upload-artifact@v4
+      - name: Run OWASP Dependency Check (SCA)
+        uses: dependency-check/Dependency-Check_Action@main
+        id: Depcheck
         with:
-          name: sca-reports
-          path: dependency-check-reports/
+          project: 'NodeApp'
+          path: '.'
+          format: 'HTML'
+          out: 'reports'
+          args: '--exclude **/passwordProtected.zip --exclude **/arbitraryFileWrite.zip --exclude **/videoExploit.zip'
+      # --- DAST with OWASP ZAP ---
+#      - name: Run OWASP ZAP Baseline Scan (DAST)
+#        uses: zaproxy/action-baseline@v0.9.0
+#        with:
+#          target: "http://zero.webappsecurity.com/"
+#          cmd_options: "-r zap-report.html"
+
+      # --- Upload Reports ---
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@master
+        with:
+          name: security-reports
+          path: ${{github.workspace}}/reports
