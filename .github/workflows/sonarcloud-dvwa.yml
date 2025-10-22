@@ -22,6 +22,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           projectKey: dvwa22
-          organization: faizaladdp
+          organization: dvwa22
           sources: .
           exclusions: 'config/**,docs/**,tests/**'
