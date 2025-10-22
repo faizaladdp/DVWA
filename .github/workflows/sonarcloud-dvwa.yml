@@ -50,21 +50,22 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install OWASP Dependency-Check
-        run: |
-          curl -LO https://github.com/jeremylong/DependencyCheck/releases/download/v8.6.0/dependency-check-8.6.0-release.zip
-          unzip dependency-check-8.6.0-release.zip -d dependency-check
+  - name: Install OWASP Dependency-Check
+    run: |
+      curl -L -o dependency-check.zip https://github.com/jeremylong/DependencyCheck/releases/download/v8.6.2/dependency-check-8.6.2-release.zip
+      unzip dependency-check.zip -d dependency-check
 
-      - name: Run Dependency-Check SCA Scan
-        run: |
-          ./dependency-check/bin/dependency-check.sh \
-            --project "DVWA SCA Scan" \
-            --scan . \
-            --format "ALL" \
-            --out "sca-report"
+  - name: Run Dependency-Check SCA Scan
+    run: |
+      ./dependency-check/dependency-check/bin/dependency-check.sh \
+        --project "DVWA SCA Scan" \
+        --scan . \
+        --format "ALL" \
+        --out "sca-report"
 
-      - name: Upload SCA Reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: sca-report
-          path: sca-report/
+  - name: Upload SCA Reports
+    uses: actions/upload-artifact@v3
+    with:
+      name: sca-report
+      path: sca-report/
+
