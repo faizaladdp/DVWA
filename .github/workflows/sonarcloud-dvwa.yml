@@ -21,7 +21,11 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          projectKey: dvwa22
-          organization: dvwa22
-          sources: .
-          exclusions: 'config/**,docs/**,tests/**'
+          args: >
+            -Dsonar.projectKey=dvwa22
+            -Dsonar.organization=dvwa22
+            -Dsonar.sources=.
+            -Dsonar.exclusions=config/**,docs/**,tests/**
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.branch.name=main
