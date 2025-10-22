@@ -52,8 +52,8 @@ jobs:
 
       - name: Install OWASP Dependency-Check
         run: |
-      	   curl -L -o dependency-check.zip https://github.com/jeremylong/DependencyCheck/releases/download/v8.6.2/dependency-check-8.6.2-release.zip
-           unzip dependency-check.zip -d dependency-check
+          curl -L -o dependency-check.zip https://github.com/jeremylong/DependencyCheck/releases/download/v8.6.2/dependency-check-8.6.2-release.zip
+          unzip dependency-check-8.6.0-release.zip -d dependency-check
 
       - name: Run Dependency-Check SCA Scan
         run: |
