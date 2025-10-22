@@ -1,39 +1,47 @@
-sonar-scan:
-  runs-on: ubuntu-latest
-  steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+name: SonarCloud Scan
 
-    - name: Set up PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: 8.2
+on:
+  push:
+    branches:
+      - master
 
-    - name: Install SonarScanner CLI
-      run: |
-        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.10.0.19059-linux.zip
-        unzip sonar-scanner-cli-4.10.0.19059-linux.zip -d $HOME/sonar-scanner
-        echo "$HOME/sonar-scanner/sonar-scanner-4.10.0.19059-linux/bin" >> $GITHUB_PATH
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Run SonarScanner with JSON output
-      run: |
-        sonar-scanner \
-          -Dsonar.projectKey=dvwa22 \
-          -Dsonar.organization=dvwa22 \
-          -Dsonar.sources=. \
-          -Dsonar.exclusions=config/**,docs/**,tests/** \
-          -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-          -Dsonar.branch.name=master \
-          -Dsonar.scanner.metadataFile=sonar-report.json
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
 
-    - name: Convert JSON to HTML (optional)
-      run: |
-        npm install -g sonar-report-generator
-        sonar-report-generator --input sonar-report.json --output sonar-report.html
+      - name: Install SonarScanner CLI
+        run: |
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.10.0.19059-linux.zip
+          unzip sonar-scanner-cli-4.10.0.19059-linux.zip -d $HOME/sonar-scanner
+          echo "$HOME/sonar-scanner/sonar-scanner-4.10.0.19059-linux/bin" >> $GITHUB_PATH
 
-    - name: Upload SAST Report
-      uses: actions/upload-artifact@v3
-      with:
-        name: sast-report
-        path: sonar-report.html
+      - name: Run SonarCloud Scan with JSON Report
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=dvwa22 \
+            -Dsonar.organization=dvwa22 \
+            -Dsonar.sources=. \
+            -Dsonar.exclusions=config/**,docs/**,tests/** \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.branch.name=master \
+            -Dsonar.scanner.metadataFile=sonar-report.json
+
+      - name: Convert JSON to HTML Report
+        run: |
+          npm install -g sonar-report-generator
+          sonar-report-generator --input sonar-report.json --output sonar-report.html
+
+      - name: Upload SAST HTML Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: sast-report
+          path: sonar-report.html
