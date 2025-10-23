@@ -63,15 +63,15 @@ jobs:
       - name: Run OWASP ZAP Baseline Scan (DAST)
         run: |
           mkdir -p /tmp/zap
-          docker run \
-            -v /tmp/zap:/zap/wrk/:rw \
-            --network=host \
+          docker run --rm \
+            -v /tmp/zap:/zap/tmp:rw \
+            --user root \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py \
               -t http://testphp.vulnweb.com/ \
-              -J report_json.json \
-              -w report_md.md \
-              -r zap-report.html \
+              -J /zap/tmp/report_json.json \
+              -w /zap/tmp/report_md.md \
+              -r /zap/tmp/zap-report.html \
               -a \
               -m 5
         continue-on-error: true
