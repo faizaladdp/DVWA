@@ -64,14 +64,14 @@ jobs:
         run: |
           mkdir -p /tmp/zap
           docker run --rm \
-            -v /tmp/zap:/zap/tmp:rw \
+            -v /tmp/zap:/zap/wrk:rw \
             --user root \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py \
               -t http://testphp.vulnweb.com/ \
-              -J /zap/tmp/report_json.json \
-              -w /zap/tmp/report_md.md \
-              -r /zap/tmp/zap-report.html \
+              -J /zap/wrk/report_json.json \
+              -w /zap/wrk/report_md.md \
+              -r /zap/wrk/zap-report.html \
               -a \
               -m 5
         continue-on-error: true
