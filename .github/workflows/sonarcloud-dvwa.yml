@@ -3,7 +3,7 @@ name: ZAP Automation Framework Scan
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 jobs:
