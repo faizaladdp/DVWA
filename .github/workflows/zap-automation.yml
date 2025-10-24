@@ -11,11 +11,9 @@ jobs:
     name: Run OWASP ZAP Automation Framework
 
     steps:
-      # Checkout your repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Ensure zap-config folder is present with autorun.yaml inside
       - name: Verify ZAP config
         run: |
           if [ ! -f "zap-config/autorun.yaml" ]; then
@@ -23,24 +21,27 @@ jobs:
             exit 1
           fi
 
-      # Run ZAP Automation Framework
       - name: Run ZAP Automation Framework
         uses: MisterIcy/zap-automation-framework@main
         with:
-          config-dir: 'zap-config'           # folder containing autorun.yaml
-          autorun-file: 'autorun.yaml'       # ZAP automation config
-          docker-image: 'ghcr.io/zaproxy/zaproxy:stable'  # latest stable ZAP
-          create-annotations: false          # optional: true to show warnings inline
+          config-dir: 'zap-config'
+          autorun-file: 'autorun.yaml'
+          docker-image: 'ghcr.io/zaproxy/zaproxy:stable'
+          create-annotations: false
           create-issue: false
-          summary-file: 'summary.json'       # summary output
-          json-file: 'report.json'           # full JSON report
+          summary-file: 'summary.json'
+          json-file: 'report.json'
           issue-title: 'ZAP Scan Result Findings'
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload reports as artifact
-      - name: Upload ZAP Reports
+      - name: Upload ZAP HTML Report
         uses: actions/upload-artifact@v4
         with:
-          name: zap-reports
-          path: |
-            reports/summary.json
-            reports/report.json
+          name: zap-html-report
+          path: reports/zap-report.html
+
+      - name: Upload ZAP JSON Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-json-report
+          path: reports/report.json
