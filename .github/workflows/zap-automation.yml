@@ -14,6 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Ensure ZAP config exists
       - name: Verify ZAP config
         run: |
           if [ ! -f "zap-config/autorun.yaml" ]; then
@@ -21,8 +22,9 @@ jobs:
             exit 1
           fi
 
+      # Run ZAP Automation Framework
       - name: Run ZAP Automation Framework
-        uses: MisterIcy/zap-automation-framework@main
+        uses: MisterIcy/zap-automation-framework@master
         with:
           config-dir: 'zap-config'
           autorun-file: 'autorun.yaml'
@@ -33,8 +35,15 @@ jobs:
           json-file: 'report.json'
           issue-title: 'ZAP Scan Result Findings'
 
+      # Move reports to a single folder for upload
+      - name: Collect ZAP Reports
+        run: |
+          mkdir -p zap-reports
+          mv report.json summary.json zap-reports/ || echo "No reports found"
+
+      # Upload ZAP reports as artifacts
       - name: Upload ZAP Reports
         uses: actions/upload-artifact@v4
         with:
-          name: zap-scan-reports
-          path: zap-config/
+          name: zap_reports       # lowercase, no special chars
+          path: zap-reports/
