@@ -2,7 +2,7 @@ name: OWASP ZAP Automation Scan
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
@@ -14,7 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Ensure zap-config folder is present with autorun.yaml inside
       - name: Verify ZAP config
         run: |
           if [ ! -f "zap-config/autorun.yaml" ]; then
@@ -25,13 +24,13 @@ jobs:
       - name: Run ZAP Automation Framework
         uses: MisterIcy/zap-automation-framework@main
         with:
-          config-dir: 'zap-config'           # folder containing autorun.yaml
-          autorun-file: 'autorun.yaml'       # ZAP automation config
-          reports-dir: 'reports'             # report output directory
-          create-annotations: false          # optional: true to show warnings inline
+          config-dir: 'zap-config'
+          autorun-file: 'autorun.yaml'
+          docker-image: 'owasp/zap2docker-stable:latest'
+          create-annotations: false
 
       - name: Upload ZAP Report
         uses: actions/upload-artifact@v4
         with:
           name: zap-scan-report
-          path: reports/
+          path: zap-config/
