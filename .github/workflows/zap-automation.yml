@@ -2,7 +2,7 @@ name: OWASP ZAP Automation Scan
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -29,3 +29,9 @@ jobs:
           autorun-file: 'autorun.yaml'       # ZAP automation config
           reports-dir: 'reports'             # report output directory
           create-annotations: false          # optional: true to show warnings inline
+
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-scan-report
+          path: reports/
