@@ -1,9 +1,10 @@
-name: ZAP Baseline Scan
+name: ZAP Automation Framework Scan
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   zap_scan:
@@ -12,31 +13,61 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create report directory
-        run: mkdir -p /tmp/zap
-
-      - name: Run ZAP Baseline Scan
+      # 1️⃣ Create ZAP config folder and autorun file dynamically
+      - name: Create ZAP config
         run: |
-          docker run --rm \
-            -v /tmp/zap:/zap/wrk:rw \
-            --user root \
-            ghcr.io/zaproxy/zaproxy:stable \
-            zap-baseline.py \
-              -t http://testphp.vulnweb.com/ \
-              -J /zap/wrk/report_json.json \
-              -w /zap/wrk/report_md.md \
-              -r /zap/wrk/zap-report.html \
-              -a \
-              -m 5
+          mkdir -p zap-config
+          cat <<'EOF' > zap-config/autorun.yaml
+          env:
+            contexts:
+              - name: "Test Context"
+                urls:
+                  - "http://testphp.vulnweb.com"
+          parameters:
+            failOnError: false
+            progressToStdout: true
+          jobs:
+            - type: spider
+              parameters:
+                context: "Test Context"
+                maxDuration: 5
+            - type: passiveScan-wait
+            - type: report
+              parameters:
+                template: "traditional-html"
+                reportDir: "reports"
+                reportFile: "zap-report.html"
+                reportTitle: "ZAP HTML Report"
+                reportDescription: "OWASP ZAP automated scan"
+              risks:
+                - high
+                - medium
+                - low
+                - info
+              confidences:
+                - high
+                - medium
+                - low
+                - falsepositive
+            - type: outputSummary
+              parameters:
+                format: "long"
+                summaryFile: "/zap/reports/zap-summary.json"
+          EOF
 
-      - name: Upload ZAP HTML Report
+      # 2️⃣ Run the official ZAP Automation Framework Action
+      - name: Run ZAP Automation Framework
+        uses: MisterIcy/zap-automation-framework@v0.1.0
+        with:
+          config-dir: 'zap-config'
+          autorun-file: 'autorun.yaml'
+          reports-dir: 'reports'
+          summary-file: 'zap-summary.json'
+          create-annotations: true
+
+      # 3️⃣ Upload reports as artifacts
+      - name: Upload ZAP Reports
         uses: actions/upload-artifact@v4
         with:
-          name: ZAP HTML Report
-          path: /tmp/zap/zap-report.html
-
-      - name: Upload ZAP JSON Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: ZAP JSON Report
-          path: /tmp/zap/report_json.json
+          name: ZAP Reports
+          path: reports/
