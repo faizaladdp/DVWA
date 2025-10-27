@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 permissions:
-  contents: write      # Required for PR creation
+  contents: write
   security-events: write
 
 jobs:
@@ -51,13 +51,13 @@ jobs:
       - name: Run pip-audit
         run: |
           pip install pip-audit
-          pip-audit -r requirements.txt -f json -o audit-report.json || true
+          pip-audit -r requirements.txt -f json -o vulnerabilities.json || true
 
       - name: Upload pip-audit report
         uses: actions/upload-artifact@v4
         with:
           name: pip-audit-report
-          path: audit-report.json
+          path: vulnerabilities.json
 
       # ==========================
       # Step 5: Auto Remediation Bot
@@ -65,6 +65,7 @@ jobs:
       - name: Run Auto Remediation Script
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           pip install PyGithub
           python .github/scripts/auto_remediate.py
