@@ -2,7 +2,7 @@ name: Auto-Remediation-DevSecOps
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
