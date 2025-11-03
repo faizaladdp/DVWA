@@ -79,29 +79,28 @@ jobs:
   #        COMPOSER_NO_AUDIT: 1
 
       # -----------------------
-      # -----------------------
-      # Combine Reports
+      # Combine Reports (Fixed Permissions)
       # -----------------------
       - name: Combine Security Reports
         run: |
-          # Ensure the reports folder exists and is writable
-          mkdir -p reports
-          chmod -R 777 reports
+          # Ensure reports folder exists and is writable
+          sudo mkdir -p reports
+          sudo chmod -R 777 reports
           
           echo "## 🛡️ Security Summary" > reports/final-report.md
-
+          
           echo -e "\n### 🔍 SonarCloud Scan" >> reports/final-report.md
           echo '```' >> reports/final-report.md
-          # Optional: add Sonar summary if available
           echo "SonarCloud scan completed. Check SonarCloud dashboard for detailed SAST results." >> reports/final-report.md
           echo '```' >> reports/final-report.md
           
           echo -e "\n### 📦 Dependency Check (SCA)" >> reports/final-report.md
           echo '```html' >> reports/final-report.md
-          cat reports/dependency-check-report.html >> reports/final-report.md || echo "No Dependency Check report found." >> reports/final-report.md
+          sudo cat reports/dependency-check-report.html >> reports/final-report.md || echo "No Dependency Check report found." >> reports/final-report.md
           echo '```' >> reports/final-report.md
           
           echo -e "\n✅ Combined report generated at reports/final-report.md"
+
 
 
       # -----------------------
