@@ -47,13 +47,13 @@ jobs:
           python scripts/risk_score.py reports/*.json context/config.yaml > risk_report.md
 
       - name: Upload Risk Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Risk_Scoring_Report
           path: risk_report.md
 
       - name: Upload Security Reports
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         with:
           name: OWASP_Dependency-Check_SCA_Scan_Reports
           path: ${{ github.workspace }}/reports
