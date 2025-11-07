@@ -1,3 +1,11 @@
+name: DVWA Security Scan
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
 jobs:
   sonar:
     runs-on: ubuntu-latest
@@ -34,7 +42,6 @@ jobs:
           out: 'reports'
           args: '--exclude **/passwordProtected.zip --exclude **/arbitraryFileWrite.zip --exclude **/videoExploit.zip'
 
-      # --- Contextual Risk Scoring ---
       - name: Contextual Risk Scoring
         run: |
           python scripts/risk_score.py reports/*.json context/config.yaml > risk_report.md
@@ -45,9 +52,8 @@ jobs:
           name: Risk_Scoring_Report
           path: risk_report.md
 
-      # --- Upload Security Reports ---
       - name: Upload Security Reports
         uses: actions/upload-artifact@master
         with:
           name: OWASP_Dependency-Check_SCA_Scan_Reports
-          path: ${{github.workspace}}/reports
+          path: ${{ github.workspace }}/reports
